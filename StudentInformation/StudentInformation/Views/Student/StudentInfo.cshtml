@@ -1,0 +1,312 @@
+﻿
+@{
+    ViewBag.Title = "StudentInfo";
+}
+
+<!DOCTYPE html>
+
+
+<style>
+    body > table {
+        width: 80%;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+        table.list {
+            width: 100%;
+        }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even), table.list thead > tr {
+        background-color: #dddddd;
+    }
+
+    input[type=text], input[type=number] {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    input[type=submit] {
+        width: 30%;
+        background-color: #ddd;
+        color: #000;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+
+
+    a {
+        cursor: pointer;
+        text-decoration: underline;
+        color: #0000ee;
+        margin-right: 4px;
+    }
+
+    label.validation-error {
+        color: red;
+        margin-left: 5px;
+    }
+</style>
+<html>
+
+<head>
+    <title>
+        Html CRUD with Pure JavaScript
+    </title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    @*<table>*@
+    <tr>
+        <td>
+            <form onsubmit="event.preventDefault();onFormSubmit();" autocomplete="off">
+                <div>
+                    <label>Student Name</label><br />
+                    <label class="validation-error hide" id="fullNameValidationError"><br/>This field is required.</label>
+                    <input type="text" name="fullName" id="fullName">
+                </div>
+
+
+                <div>
+                    <label>Student Id</label>
+                    <br /><label class="validation-error hide" id="IdValidationError"><br />This field is required.</label>
+                    <input type="text" name="StuId" id="StuId">
+                </div>
+                <div>
+                    <label>Student Department</label>
+                    <br /><label class="validation-error hide" id="DepartmentValidationError">This field is required.</label>
+                    <input type="text" name="Department" id="Department">
+                </div>
+                <div>
+                    <label>Blood Group</label>
+                    <br /><label class="validation-error hide" id="BloodValidationError">This field is required.</label>
+                    <input type="text" name="Blood" id="Blood">
+                </div>
+                <div class="form-action-buttons">
+                    <input type="submit" id="btnAdd" value="Add">
+                </div>
+            </form>
+        </td>
+        <td>
+            <table class="list" id="employeeList">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Student ID</th>
+                        <th>Department</th>
+                        <th>Blood Group</th>
+                        <th>Action</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                
+
+                <tbody></tbody>
+                
+
+            </table>
+
+            <div class="form-action-buttons">
+                <input type="button" id="btnSave" value="Save" class="btn btn-primary" onclick="">
+            </div>
+
+        </td>
+    </tr>
+    @*</table>*@
+    <link href="~/css/iziToast.min.css" rel="stylesheet" />
+    <link href="~/js/vendor/JqueryChoosen/chosen-bootstrap.css" rel="stylesheet" />
+    <link href="~/js/vendor/JqueryChoosen/chosen.css" rel="stylesheet" />
+    <link href="~/js/vendor/JQueryEasyUI/themes/black/easyui.css" rel="stylesheet" />
+    <script type="text/javascript" src="~/js/vendor/jquery.easyui.min.js"></script>
+    <script src="~/js/iziToast.min.js"></script>
+    <script src="~/js/vendor/JqueryChoosen/chosen.jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+</body>
+
+</html>
+
+
+<script>
+    
+    $("#employeeList").hide();
+    $("#btnSave").hide();
+
+    $("#btnAdd").click(function () {
+       
+        $("#employeeList").show();
+        $("#btnSave").show();
+
+    });
+
+
+    var selectedRow = null;
+
+    function onFormSubmit() {
+        if (validate()) {
+            var formData = readFormData();
+            if (selectedRow == null)
+                insertNewRecord(formData);
+            else
+                updateRecord(formData);
+            resetForm();
+        }
+    }
+
+    function readFormData() {
+        var formData = {};
+        formData["fullName"] = document.getElementById("fullName").value;
+        formData["StuId"] = document.getElementById("StuId").value;
+        formData["Department"] = document.getElementById("Department").value;
+        formData["Blood"] = document.getElementById("Blood").value;
+        return formData;
+    }
+
+    function insertNewRecord(data) {
+        var table = document.getElementById("employeeList").getElementsByTagName('tbody')[0];
+        var newRow = table.insertRow(table.length);
+        var cell1 = newRow.insertCell(0);
+        cell1.innerHTML = data.fullName;
+        var cell2 = newRow.insertCell(1);
+        cell2.innerHTML = data.StuId;
+        var cell3 = newRow.insertCell(2);
+        cell3.innerHTML = data.Department;
+        var cell4 = newRow.insertCell(3);
+        cell4.innerHTML = data.Blood;
+        var cell5 = newRow.insertCell(4);
+        cell5.innerHTML = '';
+        cell5.innerHTML = '<a onClick="onEdit(this)">Edit</a> <a onClick="onDelete(this)">Delete</a>';
+
+    }
+
+    function resetForm() {
+        document.getElementById("fullName").value = "";
+        document.getElementById("StuId").value = "";
+        document.getElementById("Department").value = "";
+        document.getElementById("Blood").value = "";
+        selectedRow = null;
+    }
+
+    function onEdit(td) {
+        selectedRow = td.parentElement.parentElement;
+        document.getElementById("fullName").value = selectedRow.cells[0].innerHTML;
+        document.getElementById("StuId").value = selectedRow.cells[1].innerHTML;
+        document.getElementById("Department").value = selectedRow.cells[2].innerHTML;
+        document.getElementById("Blood").value = selectedRow.cells[3].innerHTML;
+    }
+
+    function updateRecord(formData) {
+        selectedRow.cells[0].innerHTML = formData.fullName;
+        selectedRow.cells[1].innerHTML = formData.StuId;
+        selectedRow.cells[2].innerHTML = formData.Department;
+        selectedRow.cells[3].innerHTML = formData.Blood;
+    }
+
+    function onDelete(td) {
+        if (confirm('Are you sure to delete this record ?')) {
+            row = td.parentElement.parentElement;
+            document.getElementById("employeeList").deleteRow(row.rowIndex);
+            resetForm();
+        }
+    }
+
+    function validate() {
+        var isValid = true;
+        if (document.getElementById("fullName").value == "") {
+            isValid = false;
+            document.getElementById("fullNameValidationError").classList.remove("hide");
+        } else if (document.getElementById("StuId").value == "") {
+            isValid = false;
+            document.getElementById("IdValidationError").classList.remove("hide");
+        } else if (document.getElementById("Department").value == "") {
+            isValid = false;
+            document.getElementById("DepartmentValidationError").classList.remove("hide");
+        } else if (document.getElementById("Blood").value == "") {
+            isValid = false;
+            document.getElementById("BloodValidationError").classList.remove("hide");
+        } else {
+            isValid = true;
+            if (!document.getElementById("fullNameValidationError").classList.contains("hide"))
+                document.getElementById("fullNameValidationError").classList.add("hide");
+        }
+        return isValid;
+    }
+    
+   
+
+    $("#btnSave").click(function () {
+    
+        $("#employeeList").hide();
+        $("#btnSave").hide();
+
+    });
+
+    $("#btnSave").click(function () {
+        debugger;
+        var studentData = [];
+        $('#employeeList tbody').find("tr").each(function (row, tr) {
+
+            studentData.push({
+
+                Student_Name: $(tr).find('td:eq(0)').text(),
+                Student_Id: $(tr).find('td:eq(1)').text(),
+                Department: $(tr).find('td:eq(2)').text(),
+                Shift: $(tr).find('td:eq(3)').text()
+
+            });
+        });
+
+
+
+        console.log(studentData);
+
+
+        debugger;
+        $.ajax({
+            url: '@Url.Action("InsertStudentInfo", "Student")', //changed For Test
+            type: 'Post',
+            data: JSON.stringify({ stu: studentData }),
+            dataType: 'json',
+            async: false,
+            contentType: 'application/json',
+            success: function ()
+            {
+                
+                iziToast.success({
+                    timeout: 2000,
+                    imageWidth: 150,
+                    position: 'center',
+                    title: 'Success',
+                    message: 'Information Saved Successfully'
+             
+                });
+               
+
+            },
+        });
+
+    });
+
+</script>
+
+
+
